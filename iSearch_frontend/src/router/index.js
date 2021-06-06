@@ -1,15 +1,22 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
+import Vue from 'vue';
+import Router from 'vue-router';
+import HelloWorld from '../pages/HelloWorld';
+import Search from '../pages/Search';
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
-      path: '/',
+      path: '/search',
+      name: 'Search',
+      component: Search
+    },
+    {
+      path: '/vue',
       name: 'HelloWorld',
       component: HelloWorld
     }
   ]
-})
+});
