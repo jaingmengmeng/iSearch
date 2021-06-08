@@ -1,55 +1,59 @@
 import json
 
 from django.http import HttpResponse
+from whoosh.filedb.filestore import FileStorage
+
+from .QueryRewrite import QueryRewrite
+
+qr = QueryRewrite.QueryRewrite(
+    stopwords_path='./iSearch_backend/QueryRewrite/resources/stopwords.txt',
+    model_path='./iSearch_backend/QueryRewrite/model/word2vec.model',
+    dict_path="./iSearch_backend/QueryRewrite/resources/word_freq.json",
+    cn_dict_path="./iSearch_backend/QueryRewrite/resources/cn_dict.txt"
+)
+
+
+def myFind(query):
+    # print(query)
+    ret_result = []
+    ix_path = './iSearch_backend/indexdir/'
+    ix_name = 'ir_index_name'
+    storage = FileStorage(ix_path)
+    with storage.open_index(indexname=ix_name).searcher() as searcher:
+        results = searcher.find("content", query, limit=None)
+        for r in results:
+            ret_result.append({
+                "url": 'https://www.36kr.com/p/'+r['path'],
+                "title": r['title'],
+                "abstract": r['abstract']
+            })
+    return ret_result
 
 
 def hello(request):
     return HttpResponse("Welcome to iSearch ~")
 
 
-def Unicode():
-    import random
-    val = random.randint(0x4e00, 0x9fbf)
-    return chr(val)
-
-
 def search(request):
+    relevant_num = 30
     query = request.GET.get("q")
     page_size = request.GET.get('page_size')
     page_num = request.GET.get('page_num')
-
-    import random
-    length = random.randint(5, 99)
     doc_list = []
+    doc_list = myFind(query)
     relevant_list = []
-    for i in range(length):
-        doc_list.append(
-            {
-                "url": "https://www.baidu.com/",
-                "title": ''.join([Unicode() for i in range(random.randint(5, 50))]),
-                "abstract": ''.join([Unicode() for i in range(random.randint(5, 500))])
-            }
-        )
-        relevant_list.append(''.join([Unicode()
-                             for i in range(random.randint(5, 50))]))
+    relevant_list = qr.comprehensive_extract(query)[1][:relevant_num]
     res = {
-        "doc_list": doc_list, "relevant_list": relevant_list
+        "doc_list": doc_list,
+        "relevant_list": relevant_list
     }
-
-    str_json = json.dumps(res, indent=2, ensure_ascii=False)
-    return HttpResponse(str_json)
+    return HttpResponse(json.dumps(res, indent=2, ensure_ascii=False))
 
 
 def autocomplete(request):
+    autocomplete_num = 10
     query = request.GET.get("q")
-
-    import random
-    length = random.randint(5, 30)
     autocomplete_list = []
-    for i in range(length):
-        autocomplete_list.append(
-            query + ''.join([Unicode() for i in range(random.randint(5, 50))])
-        )
-
-    str_json = json.dumps(autocomplete_list, indent=2, ensure_ascii=False)
-    return HttpResponse(str_json)
+    for each in qr.comprehensive_extract(query)[1][:autocomplete_num]:
+        autocomplete_list.append(query + ' ' + each)
+    return HttpResponse(json.dumps(autocomplete_list, indent=2, ensure_ascii=False))
