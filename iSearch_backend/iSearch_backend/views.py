@@ -15,10 +15,13 @@ def Unicode():
 
 def search(request):
     query = request.GET.get("q")
+    page_size = request.GET.get('page_size')
+    page_num = request.GET.get('page_num')
 
     import random
     length = random.randint(5, 99)
     doc_list = []
+    relevant_list = []
     for i in range(length):
         doc_list.append(
             {
@@ -27,8 +30,13 @@ def search(request):
                 "abstract": ''.join([Unicode() for i in range(random.randint(5, 500))])
             }
         )
+        relevant_list.append(''.join([Unicode()
+                             for i in range(random.randint(5, 50))]))
+    res = {
+        "doc_list": doc_list, "relevant_list": relevant_list
+    }
 
-    str_json = json.dumps(doc_list, indent=2, ensure_ascii=False)
+    str_json = json.dumps(res, indent=2, ensure_ascii=False)
     return HttpResponse(str_json)
 
 

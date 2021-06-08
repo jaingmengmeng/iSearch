@@ -13,43 +13,58 @@
       </Row>
     </div>
     <div class="search-res" v-else>
-      <div class="search-res-affix">
-        <Affix>
-          <span class="affix">
-            <Row type="flex" class="search-res-row" align="middle">
-              <Col
-                :xs="{ span: 18, offset: 3 }"
-                :sm="{ span: 18, offset: 3 }"
-                :md="{ span: 4, offset: 0 }"
-                :lg="{ span: 4, offset: 0 }"
-                class="search-res-col"
-              >
-                <logo class="logo"></logo>
-              </Col>
-              <Col
-                :xs="{ span: 20, offset: 2 }"
-                :sm="{ span: 20, offset: 2 }"
-                :md="{ span: 16, offset: 0 }"
-                :lg="{ span: 12, offset: 0 }"
-                class="search-res-col"
-              >
-                <search-bar
-                  class="search-bar"
-                  :q="query"
-                  @query="updateQuery"
-                ></search-bar>
-              </Col>
-            </Row>
-          </span>
-        </Affix>
-      </div>
-      <result-list
-        :doc_list="doc_list"
-        :page_num="page_num"
-        :page_size="page_size"
-        @page_num="updatePageNum"
-        @page_size="updatePageSize"
-      ></result-list>
+      <Row class="search-res-header" type="flex" align="middle">
+        <Col
+          :xs="{ span: 18, offset: 3 }"
+          :sm="{ span: 18, offset: 3 }"
+          :md="{ span: 4, offset: 0 }"
+          :lg="{ span: 4, offset: 0 }"
+          class="search-res-logo"
+        >
+          <logo class="logo"></logo>
+        </Col>
+        <Col
+          :xs="{ span: 20, offset: 2 }"
+          :sm="{ span: 20, offset: 2 }"
+          :md="{ span: 16, offset: 0 }"
+          :lg="{ span: 12, offset: 0 }"
+          class="search-res-search-bar"
+        >
+          <search-bar
+            class="search-bar"
+            :q="query"
+            @query="updateQuery"
+          ></search-bar>
+        </Col>
+      </Row>
+      <Row class="search-res-content" type="flex" align="top">
+        <Col
+          :xs="{ span: 20, offset: 2 }"
+          :sm="{ span: 20, offset: 2 }"
+          :md="{ span: 16, offset: 4 }"
+          :lg="{ span: 12, offset: 4 }"
+        >
+          <result-list
+            class="result-list"
+            :doc_list="doc_list"
+            :page_num="page_num"
+            :page_size="page_size"
+            @page_num="updatePageNum"
+            @page_size="updatePageSize"
+          ></result-list>
+        </Col>
+        <Col
+          :xs="{ span: 20, offset: 2 }"
+          :sm="{ span: 20, offset: 2 }"
+          :md="{ span: 16, offset: 4 }"
+          :lg="{ span: 6, offset: 1 }"
+        >
+          <relevant
+            class="relevant-list"
+            :relevant_list="relevant_list"
+          ></relevant>
+        </Col>
+      </Row>
     </div>
   </div>
 </template>
@@ -57,19 +72,22 @@
 import Logo from '../components/Logo.vue';
 import SearchBar from '../components/SearchBar.vue';
 import ResultList from '../components/ResultList.vue';
+import Relevant from '../components/Relevant.vue';
 export default {
   name: 'Search',
   components: {
     Logo,
     SearchBar,
-    ResultList
+    ResultList,
+    Relevant
   },
   data() {
     return {
       query: '',
       page_size: 10,
       page_num: 1,
-      doc_list: []
+      doc_list: [],
+      relevant_list: []
     };
   },
   created: function() {
@@ -100,11 +118,14 @@ export default {
       await this.$axios
         .get('/api/search/', {
           params: {
-            q: this.query
+            q: this.query,
+            page_size: this.page_size,
+            page_num: this.page_num
           }
         })
         .then(res => {
-          this.doc_list = res.data;
+          this.doc_list = res.data.doc_list;
+          this.relevant_list = res.data.relevant_list;
         })
         .catch(function(error) {
           console.log(error);
@@ -142,6 +163,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .search {
+  min-height: calc(100vh - 90px);
   .search-row {
     .search-col {
       display: flex;
@@ -156,26 +178,30 @@ export default {
   }
 }
 .search-res {
-  margin-bottom: 50px;
-  .search-res-affix {
+  min-height: calc(100vh - 90px);
+  .search-res-header {
     background-color: white;
-    .affix {
-      .search-res-row {
-        .search-res-col {
-          .logo {
-            text-align: center;
-            margin-top: 20px;
-            margin-left: 10%;
-            margin-right: 10%;
-            margin-bottom: 20px;
-          }
-          .search-bar {
-            padding-top: 20px;
-            padding-bottom: 20px;
-          }
-        }
-      }
+    width: 100%;
+    height: fit-content;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    .search-res-logo {
+      text-align: center;
+      margin-top: 20px;
+      padding-left: 20px;
+      padding-right: 20px;
+      margin-bottom: 20px;
     }
+    .search-res-search-bar {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+  }
+  .result-list,
+  .relevant-list {
+    margin-top: 20px;
   }
 }
 </style>

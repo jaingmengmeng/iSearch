@@ -4,12 +4,13 @@ import Vue from 'vue';
 import App from './App';
 import router from './router';
 // iview ui framework
-import iView from 'iview';
-import 'iview/dist/styles/iview.css';
+import ViewUI from 'view-design';
+import 'view-design/dist/styles/iview.css';
+// axios
 import Axios from 'axios';
 
 Vue.config.productionTip = false;
-Vue.use(iView);
+Vue.use(ViewUI);
 Vue.prototype.$axios = Axios;
 // Axios.defaults.headers.post['Content-Type'] = 'application/x-www-fromurlencodeed';
 

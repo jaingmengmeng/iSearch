@@ -1,6 +1,11 @@
 <template>
   <div class="search-bar">
-    <Dropdown trigger="custom" :visible="visible" class="search-dropdown">
+    <Dropdown
+      trigger="custom"
+      :visible="visible"
+      class="search-dropdown"
+      placement="bottom"
+    >
       <Input
         class="search-input"
         v-model="query"
@@ -23,6 +28,14 @@
         </div>
       </Dropdown-menu>
     </Dropdown>
+    <!-- <AutoComplete
+      v-model="query"
+      icon="ios-search"
+      :data="dropdown_list.slice(0, max_dropdown)"
+      @on-search="getAutoComplete"
+      placeholder="input here"
+      style="width:100%"
+    ></AutoComplete> -->
   </div>
 </template>
 
@@ -33,7 +46,7 @@ export default {
   data() {
     return {
       query: '',
-      max_dropdown: 10,
+      max_dropdown: 7,
       visible: false,
       dropdown_list: []
     };
