@@ -44,14 +44,22 @@
           :md="{ span: 16, offset: 4 }"
           :lg="{ span: 12, offset: 4 }"
         >
+          <corrected-query
+            class="corrected-query"
+            v-if="corrected_query !== query"
+            :corrected_query="corrected_query"
+          ></corrected-query>
           <result-list
             class="result-list"
+            v-if="doc_list_len > 0"
             :doc_list="doc_list"
+            :doc_list_len="doc_list_len"
             :page_num="page_num"
             :page_size="page_size"
             @page_num="updatePageNum"
             @page_size="updatePageSize"
           ></result-list>
+          <div class="blank" v-else>未查找到与 - {{ query }} - 相关的文档</div>
         </Col>
         <Col
           :xs="{ span: 20, offset: 2 }"
@@ -73,24 +81,28 @@ import Logo from '../components/Logo.vue';
 import SearchBar from '../components/SearchBar.vue';
 import ResultList from '../components/ResultList.vue';
 import Relevant from '../components/Relevant.vue';
+import CorrectedQuery from '../components/CorrectedQuery.vue';
 export default {
   name: 'Search',
   components: {
     Logo,
     SearchBar,
     ResultList,
-    Relevant
+    Relevant,
+    CorrectedQuery
   },
   data() {
     return {
       query: '',
       page_size: 10,
       page_num: 1,
+      corrected_query: '',
       doc_list: [],
+      doc_list_len: 0,
       relevant_list: []
     };
   },
-  created: function() {
+  created: async function() {
     if (this.$route.query.page_size !== undefined) {
       this.page_size = Number(this.$route.query.page_size);
     }
@@ -103,32 +115,54 @@ export default {
         this.$route.query.page_size === undefined ||
         this.$route.query.page_num === undefined
       ) {
-        this.updateURL();
+        await this.updateURL();
       }
     }
   },
   mounted: async function() {
-    await this.getResult();
+    if (this.query !== '') {
+      await this.getResult();
+    }
   },
   watch: {
     query: 'getResult'
   },
   methods: {
     async getResult() {
+      this.$Spin.show({
+        render: h => {
+          return h('div', [
+            h('Icon', {
+              class: 'demo-spin-icon-load',
+              props: {
+                type: 'ios-loading',
+                size: 20
+              }
+            }),
+            h('div', 'Loading')
+          ]);
+        }
+      });
       await this.$axios
         .get('/api/search/', {
           params: {
-            q: this.query,
+            q: this.query.trim(),
             page_size: this.page_size,
             page_num: this.page_num
           }
         })
         .then(res => {
+          this.corrected_query = res.data.corrected_query;
           this.doc_list = res.data.doc_list;
+          this.doc_list_len = res.data.doc_list_len;
           this.relevant_list = res.data.relevant_list;
+          this.$Spin.hide();
         })
-        .catch(function(error) {
-          console.log(error);
+        .catch(function() {
+          this.corrected_query = '';
+          this.doc_list = [];
+          this.doc_list_len = 0;
+          this.relevant_list = [];
         });
     },
     async updateQuery(q) {
@@ -136,19 +170,20 @@ export default {
         this.query = q;
         this.page_size = 10;
         this.page_num = 1;
-        this.updateURL();
+        await this.updateURL();
+      } else {
+        await this.getResult();
       }
-      await this.getResult();
     },
-    updatePageNum(num) {
+    async updatePageNum(num) {
       this.page_num = num;
-      this.updateURL();
+      await this.updateURL();
     },
-    updatePageSize(size) {
+    async updatePageSize(size) {
       this.page_size = size;
-      this.updateURL();
+      await this.updateURL();
     },
-    updateURL() {
+    async updateURL() {
       this.$router.replace({
         name: 'Search',
         query: {
@@ -157,6 +192,7 @@ export default {
           page_num: this.page_num
         }
       });
+      await this.getResult();
     }
   }
 };
@@ -187,6 +223,7 @@ export default {
     top: 0;
     left: 0;
     z-index: 100;
+    box-shadow: 0 5px 5px -6px rgba(0, 0, 0, 0.5);
     .search-res-logo {
       text-align: center;
       margin-top: 20px;
@@ -199,9 +236,25 @@ export default {
       padding-bottom: 20px;
     }
   }
+  .blank,
+  .corrected-query,
   .result-list,
   .relevant-list {
-    margin-top: 20px;
+    margin-top: 30px;
+  }
+}
+.demo-spin-icon-load {
+  animation: ani-demo-spin 1s linear infinite;
+}
+@keyframes ani-demo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

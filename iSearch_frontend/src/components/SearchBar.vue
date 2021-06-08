@@ -14,8 +14,10 @@
         icon="ios-search"
         :maxlength="100"
         @on-change="showDropdown"
+        @on-focus="showDropdown"
         @on-click="submitSearch"
         @on-enter="submitSearch"
+        @on-blur="hideDropDown"
       ></Input>
       <Dropdown-menu
         class="search-dropdown-menu"
@@ -83,6 +85,9 @@ export default {
           this.visible = true;
         }
       }
+    },
+    hideDropDown() {
+      this.visible = false;
     },
     selectDropdown(item) {
       this.query = item;

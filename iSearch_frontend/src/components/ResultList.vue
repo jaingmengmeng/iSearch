@@ -1,13 +1,6 @@
 <template>
   <div class="result-list">
-    <div
-      class="search-res-list"
-      v-for="(item, i) in doc_list.slice(
-        (page_num - 1) * page_size,
-        page_num * page_size
-      )"
-      :key="i"
-    >
+    <div class="search-res-list" v-for="(item, i) in doc_list" :key="i">
       <result
         :url="item.url"
         :abstract="item.abstract"
@@ -16,7 +9,7 @@
     </div>
     <div align="center">
       <Page
-        :total="doc_list.length"
+        :total="doc_list_len"
         :page-size="page_size"
         :current="page_num"
         @on-change="handleChange"
@@ -30,7 +23,7 @@
 import Result from './Result.vue';
 export default {
   name: 'ResultList',
-  props: ['doc_list', 'page_size', 'page_num'],
+  props: ['doc_list', 'doc_list_len', 'page_size', 'page_num'],
   components: {
     Result
   },

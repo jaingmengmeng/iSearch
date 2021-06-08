@@ -43,17 +43,18 @@ def hello(request):
 def search(request):
     relevant_num = 30
     query = request.GET.get("q")
-    page_size = request.GET.get('page_size')
-    page_num = request.GET.get('page_num')
-    doc_list = []
-    doc_list = myFind(query)
+    page_size = int(request.GET.get('page_size'))
+    page_num = int(request.GET.get('page_num'))
     qr_result = qr.comprehensive_extract(query)
     relevant_list = []
     relevant_list = qr_result[1][:relevant_num]
     corrected_query = qr_result[0]
+    doc_list = []
+    doc_list = myFind(corrected_query)
     res = {
         "corrected_query": corrected_query,
-        "doc_list": doc_list,
+        "doc_list_len": len(doc_list),
+        "doc_list": doc_list[page_size * (page_num - 1): page_size * page_num],
         "relevant_list": relevant_list
     }
     return HttpResponse(json.dumps(res, indent=2, ensure_ascii=False))
