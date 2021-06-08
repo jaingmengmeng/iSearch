@@ -12,7 +12,7 @@ class AutoComplete():
     def __init__(self, word_freq_path, model_path):
         self.word_freq_path = word_freq_path
         self.model_path = model_path
-        self.model = word2vec.Word2Vec.load(self.model_path)
+        self.model = word2vec.Word2Vec.load(self.model_path, allow_pickle=True)
         with open(self.word_freq_path, 'r') as f:
             self.word_freq = json.load(f)
             # print(len(self.word_freq))

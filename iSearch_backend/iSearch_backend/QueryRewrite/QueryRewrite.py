@@ -26,7 +26,7 @@ class QueryRewrite():
         # print(self.stopwords)
         if not os.path.exists(self.model_path):
             self.train()
-        self.model = word2vec.Word2Vec.load(self.model_path)
+        self.model = word2vec.Word2Vec.load(self.model_path, allow_pickle=True)
 
     def train(self):
         print('start training...')
