@@ -8,14 +8,14 @@ from .QueryRewrite.AutoComple import AutoComplete
 
 qr = QueryRewrite.QueryRewrite(
     stopwords_path='./iSearch_backend/QueryRewrite/resources/stopwords.txt',
-    model_path='./iSearch_backend/QueryRewrite/model/word2vec.model',
+    model_path='./iSearch_backend/QueryRewrite/model/word2vec.model.bin',
     dict_path="./iSearch_backend/QueryRewrite/resources/word_freq.json",
     cn_dict_path="./iSearch_backend/QueryRewrite/resources/cn_dict.txt"
 )
 
 ac = AutoComplete(
     './iSearch_backend/QueryRewrite/resources/word_freq.json',
-    './iSearch_backend/QueryRewrite/model/word2vec.model'
+    './iSearch_backend/QueryRewrite/model/word2vec.model.bin'
 )
 
 

@@ -1,6 +1,6 @@
 import json
 import jieba
-from gensim.models import word2vec
+from gensim.models import word2vec, KeyedVectors
 
 
 class AutoComplete():
@@ -12,7 +12,11 @@ class AutoComplete():
     def __init__(self, word_freq_path, model_path):
         self.word_freq_path = word_freq_path
         self.model_path = model_path
-        self.model = word2vec.Word2Vec.load(self.model_path)
+        # self.model = word2vec.Word2Vec.load(self.model_path)
+        self.model = KeyedVectors.load_word2vec_format(
+            self.model_path,
+            binary=True
+        )
         with open(self.word_freq_path, 'r') as f:
             self.word_freq = json.load(f)
             # print(len(self.word_freq))
@@ -54,7 +58,7 @@ class AutoComplete():
             return candidate_phrases
         else:
             target_phrase = phrases[-2]
-            candidate_phrases.sort(key=lambda x: self.model.wv.similarity(
+            candidate_phrases.sort(key=lambda x: self.model.similarity(
                 x, target_phrase), reverse=True)
 
         sentences = [phrases[:-1]+[phrase] for phrase in candidate_phrases]
