@@ -8,11 +8,27 @@
         <img src="https://avatars2.githubusercontent.com/u/27804?v=4" width="200" alt="Django"/>
     </a>
     <a href="https://vuejs.org/">
-        <img src="https://avatars1.githubusercontent.com/u/6128107?v=4" width="200" alt="Vue.js">
+        <img src="https://avatars1.githubusercontent.com/u/6128107?v=4" width="250" alt="Vue.js">
     </a>
-    <a href="http://iview.talkingdata.com/#/">
-        <img src="https://avatars3.githubusercontent.com/u/20693613?v=4" width="200" alt="iView">
+    <a href="http://v1.iviewui.com/">
+        <img src="https://file.iviewui.com/dist/d6fcbeecd3f5ff1b1dd0a0f68bdf6ce7.svg" width="200" alt="iView">
     </a>
 </p>
 
-A search engine implemented by Python + Django + Vue.js.
+A search engine implemented by Python + Django + Vue.js + View UI.
+
+## Usage
+
+```shell
+# run fronted
+cd iSearch_fronted
+npm install
+npm run dev
+
+# run backend
+cd iSearch_backend
+python manage.py runserver 0.0.0.0:8000
+```
+
+open broswer @ [http://localhost:8080/search](http://localhost:8080/search)
+
