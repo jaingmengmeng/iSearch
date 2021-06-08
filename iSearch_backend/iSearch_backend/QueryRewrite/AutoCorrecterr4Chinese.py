@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # -*- coding:utf-8 -*-
-__author__ = "zpgao"
-
 import sys
 import pinyin
 import jieba
@@ -14,8 +12,7 @@ from tqdm import tqdm
 
 
 class AutoCorrecter():
-    def __init__(self, segmenter, dict_path="./resources/word_freq.json", file_path="./files",
-                 cn_dict_path="./resources/cn_dict.txt"):
+    def __init__(self, segmenter, dict_path="./resources/word_freq.json", file_path="./files", cn_dict_path="./resources/cn_dict.txt"):
 
         self.FILE_PATH = file_path
         self.PUNCTUATION_LIST = string.punctuation
@@ -55,7 +52,8 @@ class AutoCorrecter():
         splits = [(phrase[:i], phrase[i:]) for i in range(len(phrase) + 1)]
         deletes = [L + R[1:] for L, R in splits if R]
         transposes = [L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1]
-        replaces = [L + c + R[1:] for L, R in splits if R for c in cn_words_dict]
+        replaces = [L + c + R[1:]
+                    for L, R in splits if R for c in cn_words_dict]
         inserts = [L + c + R for L, R in splits for c in cn_words_dict]
         return set(deletes + transposes + replaces + inserts)
 
@@ -70,11 +68,12 @@ class AutoCorrecter():
 
         error_pinyin = pinyin.get(error_phrase, format="strip", delimiter="/")
         cn_words_dict = self.load_cn_words_dict(cn_dict_path)
-        candidate_phrases = list(self.known(self.edits1(error_phrase, cn_words_dict)))
+        candidate_phrases = list(self.known(
+            self.edits1(error_phrase, cn_words_dict)))
 
         for candidate_phrase in candidate_phrases:
-            candidate_pinyin = pinyin.get(candidate_phrase, format="strip", delimiter="/").encode("utf-8").decode(
-                "utf-8")
+            candidate_pinyin = pinyin.get(
+                candidate_phrase, format="strip", delimiter="/").encode("utf-8").decode("utf-8")
             if candidate_pinyin == error_pinyin:
                 candidates_1st_order.append(candidate_phrase)
             elif candidate_pinyin.split("/")[0] == error_pinyin.split("/")[0]:
@@ -86,7 +85,8 @@ class AutoCorrecter():
 
     def auto_correct(self, error_phrase):
 
-        c1_order, c2_order, c3_order = self.get_candidates(error_phrase, self.cn_dict_path)
+        c1_order, c2_order, c3_order = self.get_candidates(
+            error_phrase, self.cn_dict_path)
         # print c1_order, c2_order, c3_order
         if c1_order:
             return max(c1_order, key=self.phrase_freq.get)
@@ -97,7 +97,8 @@ class AutoCorrecter():
 
     def auto_correct_sentence(self, error_sentence, verbose=False):
 
-        jieba_cut = jieba.cut(error_sentence.encode("utf-8").decode("utf-8"), cut_all=False)
+        jieba_cut = jieba.cut(error_sentence.encode(
+            "utf-8").decode("utf-8"), cut_all=False)
         seg_list = "\t".join(jieba_cut).split("\t")
 
         correct_sentence = ""
@@ -106,17 +107,18 @@ class AutoCorrecter():
 
             correct_phrase = phrase
             # check if item is a punctuation
-            if phrase not in self.PUNCTUATION_LIST.encode("utf-8").decode("utf-8") and re.search(r'[a-zA-Z0-9]',
-                                                                                                 phrase) is None:
+            if phrase not in self.PUNCTUATION_LIST.encode("utf-8").decode("utf-8") and re.search(r'[a-zA-Z0-9]', phrase) is None:
                 # check if the phrase in our dict, if not then it is a misspelled phrase
                 if phrase.encode("utf-8").decode("utf-8") not in self.phrase_freq.keys():
-                    correct_phrase = self.auto_correct(phrase.encode("utf-8").decode("utf-8"))
+                    correct_phrase = self.auto_correct(
+                        phrase.encode("utf-8").decode("utf-8"))
                     if verbose:
                         print(phrase, correct_phrase)
 
             correct_sentence += correct_phrase
 
         return correct_sentence
+
 
 # if __name__=="__main__":
 # 	from word_seg import Word_Segment

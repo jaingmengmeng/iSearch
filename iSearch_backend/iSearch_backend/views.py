@@ -4,12 +4,18 @@ from django.http import HttpResponse
 from whoosh.filedb.filestore import FileStorage
 
 from .QueryRewrite import QueryRewrite
+from .QueryRewrite.AutoComple import AutoComplete
 
 qr = QueryRewrite.QueryRewrite(
     stopwords_path='./iSearch_backend/QueryRewrite/resources/stopwords.txt',
     model_path='./iSearch_backend/QueryRewrite/model/word2vec.model',
     dict_path="./iSearch_backend/QueryRewrite/resources/word_freq.json",
     cn_dict_path="./iSearch_backend/QueryRewrite/resources/cn_dict.txt"
+)
+
+ac = AutoComplete(
+    './iSearch_backend/QueryRewrite/resources/word_freq.json',
+    './iSearch_backend/QueryRewrite/model/word2vec.model'
 )
 
 
@@ -41,9 +47,12 @@ def search(request):
     page_num = request.GET.get('page_num')
     doc_list = []
     doc_list = myFind(query)
+    qr_result = qr.comprehensive_extract(query)
     relevant_list = []
-    relevant_list = qr.comprehensive_extract(query)[1][:relevant_num]
+    relevant_list = qr_result[1][:relevant_num]
+    corrected_query = qr_result[0]
     res = {
+        "corrected_query": corrected_query,
         "doc_list": doc_list,
         "relevant_list": relevant_list
     }
@@ -53,7 +62,5 @@ def search(request):
 def autocomplete(request):
     autocomplete_num = 10
     query = request.GET.get("q")
-    autocomplete_list = []
-    for each in qr.comprehensive_extract(query)[1][:autocomplete_num]:
-        autocomplete_list.append(query + ' ' + each)
+    autocomplete_list = ac.comprehensive_complete(query)[:autocomplete_num]
     return HttpResponse(json.dumps(autocomplete_list, indent=2, ensure_ascii=False))
