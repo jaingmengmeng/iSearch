@@ -1,0 +1,12 @@
+搜索算法：
+pinyin
+sklearn
+gensim
+jieba
+tqdm
+zhon
+
+爬虫：
+lxml
+tqdm
+selenium
