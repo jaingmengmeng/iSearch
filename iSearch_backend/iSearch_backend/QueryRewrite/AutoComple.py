@@ -13,10 +13,10 @@ class AutoComplete():
         self.word_freq_path = word_freq_path
         self.model_path = model_path
         # self.model = word2vec.Word2Vec.load(self.model_path)
-        self.model = KeyedVectors.load_word2vec_format(
-            self.model_path,
-            binary=True
-        )
+        # self.model = KeyedVectors.load_word2vec_format(
+        #     self.model_path,
+        #     binary=True
+        # )
         with open(self.word_freq_path, 'r') as f:
             self.word_freq = json.load(f)
             # print(len(self.word_freq))
@@ -39,10 +39,14 @@ class AutoComplete():
         '''
         仅仅针对最后一个字符，返回改字符开头的词，按词频从高到低排序
         '''
-        assert len(query) > 0
+        if len(query) == 0:
+            return []
 
         prefix = query[-1]
         candidate_phrases = self.search_with_prefix(prefix)
+
+        if len(candidate_phrases) == 0:
+            return candidate_phrases
 
         return [query[:-1]+phrase for phrase in candidate_phrases]
 
@@ -50,10 +54,15 @@ class AutoComplete():
         '''
         使用了jieba分词，对分词结果的最后一个词按词频检索，并且如果分词结果长度>2，还会考虑和前一个词的匹配度
         '''
-        assert len(query) > 0
+        if len(query) == 0:
+            return []
 
         phrases = jieba.lcut_for_search(query.strip(), HMM=True)
         candidate_phrases = self.search_with_prefix(phrases[-1])
+
+        if len(candidate_phrases) == 0:
+            return candidate_phrases
+
         if len(phrases) == 1:
             return candidate_phrases
         else:
@@ -64,7 +73,7 @@ class AutoComplete():
         sentences = [phrases[:-1]+[phrase] for phrase in candidate_phrases]
         return [''.join(sentence) for sentence in sentences]
 
-
-# ac = AutoComplete('./QueryRewrite/resources/word_freq.json', './QueryRewrite/model/word2vec.model')
-# print(ac.normal_complete('太晚读'))
-# print(ac.comprehensive_complete('太晚读'))
+# if __name__ == '__main__':
+#     ac = AutoComplete('./QueryRewrite/resources/word_freq.json', './QueryRewrite/model/word2vec.model.bin')
+#     print(ac.normal_complete('ceshi'))
+#     print(ac.comprehensive_complete('ceshi'))
