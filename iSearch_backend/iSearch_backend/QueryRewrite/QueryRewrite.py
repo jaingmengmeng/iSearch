@@ -3,7 +3,7 @@ from .word_seg import Word_Segment
 from .AutoCorrecterr4Chinese import AutoCorrecter
 import os
 from tqdm import tqdm
-
+import json
 
 class QueryRewrite():
 
@@ -24,6 +24,8 @@ class QueryRewrite():
         self.autocorrecter = AutoCorrecter(
             self.segmenter, self.dict_path, self.file_path, cn_dict_path)
         # print(self.stopwords)
+        with open(self.dict_path, "r", encoding="utf-8") as f:
+            self.phrase_freq = json.load(f)
         if not os.path.exists(self.model_path):
             self.train()
         # self.model = word2vec.Word2Vec.load(self.model_path)
@@ -63,16 +65,22 @@ class QueryRewrite():
         '''
         corrected_query = self.autocorrecter.auto_correct_sentence(query)
         words = self.segmenter.word_segment(corrected_query)
-        similar_words = self.model.most_similar(words, topn=3)
+        filtered_words = []
+        for word in words:
+            if word in self.phrase_freq.keys():
+                filtered_words.append(word)
+        if len(filtered_words) == 0:
+            return (corrected_query, [], "".join(words))
+        similar_words = self.model.most_similar(filtered_words, topn=3)
         similar_words = list(map(lambda x: x[0], similar_words))
         associate_words = list(
             map(lambda x: x[0], self.model.most_similar(words, topn=100)))
         # print(similar_words)
         return (corrected_query, associate_words, " ".join(words+similar_words))
 
-
+# if __name__ == "__main__":
 # 输入你的停用词文件位置、词频词典位置、所有doc的位置、模型位置以及中文词典的位置
-# qr = QueryRewrite(stopwords_path='./resources/stopwords.txt', file_path="./files", dict_path="./resources/word_freq.json", model_path='./model/word2vec.model', cn_dict_path="./resources/cn_dict.txt")
+# qr = QueryRewrite(stopwords_path='./QueryRewrite/resources/stopwords.txt', file_path="./QueryRewrite/files", dict_path="./QueryRewrite/resources/word_freq.json", model_path='./QueryRewrite/model/word2vec.model.bin', cn_dict_path="./QueryRewrite/resources/cn_dict.txt")
 # print('Query: 元气森林白讨含糖量！')
 # print('normal mode:', qr.normal_extract('元气森林白讨含糖量！'))
-# print('advanced mode:', qr.comprehensive_extract('元气森林白讨含糖量！'))
+# print('advanced mode:', qr.comprehensive_extract('ceshi'))

@@ -13,10 +13,10 @@ class AutoComplete():
         self.word_freq_path = word_freq_path
         self.model_path = model_path
         # self.model = word2vec.Word2Vec.load(self.model_path)
-        # self.model = KeyedVectors.load_word2vec_format(
-        #     self.model_path,
-        #     binary=True
-        # )
+        self.model = KeyedVectors.load_word2vec_format(
+            self.model_path,
+            binary=True
+        )
         with open(self.word_freq_path, 'r') as f:
             self.word_freq = json.load(f)
             # print(len(self.word_freq))
@@ -60,20 +60,20 @@ class AutoComplete():
         phrases = jieba.lcut_for_search(query.strip(), HMM=True)
         candidate_phrases = self.search_with_prefix(phrases[-1])
 
-        if len(candidate_phrases) == 0:
-            return candidate_phrases
-
-        if len(phrases) == 1:
+        if len(phrases) <= 1:
             return candidate_phrases
         else:
-            target_phrase = phrases[-2]
-            candidate_phrases.sort(key=lambda x: self.model.similarity(
-                x, target_phrase), reverse=True)
+            try:
+                target_phrase = phrases[-2]
+                candidate_phrases.sort(key=lambda x: self.model.similarity(
+                    x, target_phrase), reverse=True)
+            except:
+                pass
 
         sentences = [phrases[:-1]+[phrase] for phrase in candidate_phrases]
         return [''.join(sentence) for sentence in sentences]
 
 # if __name__ == '__main__':
 #     ac = AutoComplete('./QueryRewrite/resources/word_freq.json', './QueryRewrite/model/word2vec.model.bin')
-#     print(ac.normal_complete('ceshi'))
-#     print(ac.comprehensive_complete('ceshi'))
+    # print(ac.normal_complete('ceshi'))
+    # print(ac.comprehensive_complete('ceshi'))
