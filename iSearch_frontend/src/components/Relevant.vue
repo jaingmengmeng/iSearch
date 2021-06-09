@@ -48,6 +48,9 @@ export default {
         (this.page_num %
           Math.ceil(this.relevant_list.length / this.page_size)) +
         1;
+    },
+    updatePageNum() {
+      this.page_num = 1;
     }
   }
 };

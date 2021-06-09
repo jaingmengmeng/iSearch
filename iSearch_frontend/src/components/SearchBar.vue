@@ -8,7 +8,7 @@
     >
       <Input
         class="search-input"
-        v-model="query"
+        v-model.trim="query"
         size="large"
         placeholder="输入关键词，在 iSearch 上搜索"
         icon="ios-search"
@@ -63,7 +63,7 @@ export default {
       await this.$axios
         .get('/api/autocomplete/', {
           params: {
-            q: this.query
+            q: this.query.trim()
           }
         })
         .then(res => {
