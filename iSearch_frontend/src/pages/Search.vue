@@ -70,6 +70,7 @@
           <relevant
             class="relevant-list"
             :relevant_list="relevant_list"
+            ref="relevant"
           ></relevant>
         </Col>
       </Row>
@@ -125,7 +126,7 @@ export default {
     }
   },
   watch: {
-    query: 'getResult'
+    query: 'updateQuery'
   },
   methods: {
     async getResult() {
@@ -193,6 +194,7 @@ export default {
         }
       });
       await this.getResult();
+      this.$refs.relevant.updatePageNum();
     }
   }
 };
