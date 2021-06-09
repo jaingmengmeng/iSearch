@@ -168,7 +168,7 @@ export default {
     },
     async updateQuery(q) {
       if (this.query !== q) {
-        this.query = q;
+        this.query = q.trim();
         this.page_size = 10;
         this.page_num = 1;
         await this.updateURL();
@@ -188,7 +188,7 @@ export default {
       this.$router.replace({
         name: 'Search',
         query: {
-          q: this.query,
+          q: this.query.trim(),
           page_size: this.page_size,
           page_num: this.page_num
         }
