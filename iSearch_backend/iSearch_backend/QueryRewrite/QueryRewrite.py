@@ -1,9 +1,12 @@
-from gensim.models import word2vec, KeyedVectors
-from .word_seg import Word_Segment
-from .AutoCorrecterr4Chinese import AutoCorrecter
-import os
-from tqdm import tqdm
 import json
+import os
+
+from gensim.models import KeyedVectors, word2vec
+from tqdm import tqdm
+
+from .AutoCorrecterr4Chinese import AutoCorrecter
+from .word_seg import Word_Segment
+
 
 class QueryRewrite():
 

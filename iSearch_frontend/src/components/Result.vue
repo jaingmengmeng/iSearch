@@ -1,11 +1,7 @@
 <template>
   <div class="result">
-    <div class="result-title" @click="goto()">
-      {{ title }}
-    </div>
-    <div class="result-abstract">
-      {{ abstract }}
-    </div>
+    <div class="result-title" @click="goto()" v-html="title"></div>
+    <div class="result-abstract" v-html="abstract"></div>
   </div>
 </template>
 
@@ -49,6 +45,14 @@ export default {
     -webkit-box-orient: vertical;
     word-wrap: break-word;
     word-break: break-all;
+    .marked-red {
+      font-style: normal;
+      color: #f73131;
+    }
   }
 }
+// em {
+//   color: #f73131;
+//   font-style: normal;
+// }
 </style>
