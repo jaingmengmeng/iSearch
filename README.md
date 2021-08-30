@@ -20,6 +20,12 @@ A search engine implemented by Python + Django + Vue.js + View UI.
 ## Usage
 
 ```shell
+# git clone
+git clone https://github.com/jaingmengmeng/iSearch.git
+cd iSearch
+git lfs install
+git lfs pull
+
 # run fronted
 cd iSearch_fronted
 npm install
@@ -31,4 +37,3 @@ python manage.py runserver 0.0.0.0:8000
 ```
 
 open broswer @ [http://localhost:8080/search](http://localhost:8080/search)
-
